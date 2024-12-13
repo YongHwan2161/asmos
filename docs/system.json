@@ -1,0 +1,623 @@
+{
+  "project": {
+    "name": "MyOS",
+    "version": "0.3.7",
+    "description": "A 32-bit protected mode operating system with enhanced keyboard handling and line drawing"
+  },
+  "architecture": {
+    "processor": "x86",
+    "bootMode": "Protected Mode",
+    "bits": "32",
+    "memoryMap": {
+      "bootloader": "0x7C00",
+      "kernel": "0x1000",
+      "stackStart": "0x90000",
+      "vgaMemory": "0xA0000",
+      "gdtLocation": "0x800"
+    }
+  },
+  "components": {
+    "bootloader": {
+      "stages": {
+        "primary": {
+          "files": [
+            "src/boot.asm",
+            "src/gdt.asm",
+            "src/utils.asm"
+          ],
+          "features": [
+            "32-bit Protected Mode",
+            "Global Descriptor Table",
+            "VESA graphics mode",
+            "Enhanced keyboard handling",
+            "Robust disk error checking",
+            "32-bit memory addressing",
+            "Improved memory protection",
+            "Linear framebuffer support"
+          ],
+          "bootSequence": [
+            "Initialize real mode",
+            "Get VESA information",
+            "Set VESA mode (640x480x256)",
+            "Load kernel with verification",
+            "Enable A20 line",
+            "Load GDT",
+            "Switch to protected mode",
+            "Initialize protected mode segments",
+            "Jump to main program"
+          ]
+        }
+      }
+    }
+  },
+  "input": {
+    "keyboard": {
+      "handler": {
+        "type": "Enhanced protected mode handler",
+        "implementation": {
+          "scanCodeHandling": {
+            "navigation": ["UP", "DOWN", "LEFT", "RIGHT"],
+            "control": ["SPACE"],
+            "text": {
+              "implementation": {
+                "characterConversion": {
+                  "method": "Scan code to ASCII mapping",
+                  "tables": {
+                    "normal": "scancode_to_ascii",
+                    "shifted": "scancode_to_ascii_shift"
+                  },
+                  "features": [
+                    "Direct scan code to ASCII conversion",
+                    "Shift key state handling",
+                    "Upper/lowercase character support",
+                    "Special character mapping"
+                  ]
+                },
+                "rendering": {
+                  "method": "ASCII-based pattern lookup",
+                  "positioning": {
+                    "wrapping": "Automatic line wrapping",
+                    "boundaries": "Screen edge protection",
+                    "spacing": {
+                      "horizontal": 8,
+                      "vertical": 9
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "textInput": {
+            "features": [
+              "Keyboard layout based rendering",
+              "Direct scan code to pattern mapping",
+              "Automatic line wrapping",
+              "Screen boundary protection",
+              "Position tracking"
+            ],
+            "positioning": {
+              "initial": {"x": 10, "y": 10},
+              "spacing": {
+                "character": 8,
+                "line": 9
+              }
+            },
+            "keyboardLayout": {
+              "type": "Standard QWERTY",
+              "rowMapping": {
+                "top": "0x10-0x19",
+                "home": "0x1E-0x26",
+                "bottom": "0x2C-0x32"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "protectedMode": {
+    "features": [
+      "Memory protection",
+      "Virtual memory support",
+      "Larger address space (4GB)",
+      "Hardware-level multitasking support",
+      "Privilege levels (rings 0-3)"
+    ],
+    "segments": {
+      "code": {
+        "base": "0x0",
+        "limit": "0xFFFFF",
+        "access": "0x9A",
+        "flags": "0xC",
+        "ring": 0
+      },
+      "data": {
+        "base": "0x0",
+        "limit": "0xFFFFF",
+        "access": "0x92",
+        "flags": "0xC",
+        "ring": 0
+      }
+    },
+    "memoryModel": "Flat",
+    "addressingMode": "Linear"
+  },
+  "graphics": {
+    "mode": "VESA",
+    "resolution": "640x480",
+    "colors": 256,
+    "memoryAddress": "0xFD000000",
+    "vbeInfo": {
+      "infoBlock": "0x9000",
+      "modeInfo": "0x9500",
+      "mode": "0x101",
+      "features": [
+        "Linear framebuffer",
+        "Higher resolution",
+        "256 color palette",
+        "Hardware-accelerated operations"
+      ],
+      "implementation": {
+        "memoryModel": "Linear framebuffer",
+        "baseAddress": "0xFD000000",
+        "screenSize": "307200 bytes (640*480)",
+        "colorDepth": "8 bits (256 colors)",
+        "attributes": [
+          "Linear/flat memory model",
+          "Single bank",
+          "No bank switching required",
+          "Direct memory access"
+        ]
+      }
+    },
+    "qemuConfiguration": {
+      "vgaType": "std",
+      "display": "gtk",
+      "resolution": "640x480",
+      "colorDepth": "8",
+      "makefileFlags": [
+        "-vga std",
+        "-display gtk"
+      ]
+    },
+    "features": [
+      "Continuous line drawing",
+      "Pixel trail system",
+      "Multi-directional drawing",
+      "Real-time coordinate display",
+      "9-color palette selection",
+      "Full alphanumeric character rendering",
+      "Enhanced boundary protection",
+      "Smooth screen transitions",
+      "Higher resolution graphics",
+      "Linear framebuffer access"
+    ],
+    "screenTransitions": {
+      "type": "Fade effect",
+      "implementation": {
+        "method": "Grayscale fade",
+        "steps": 16,
+        "delay": "Configurable timing",
+        "features": [
+          "Smooth transition to black",
+          "Configurable fade steps",
+          "Adjustable fade timing",
+          "Memory-efficient implementation"
+        ]
+      },
+      "resetBehavior": {
+        "type": "Enhanced position reset",
+        "features": [
+          "Precise center calculation",
+          "Boundary validation",
+          "Position adjustment",
+          "Safe coordinate handling"
+        ],
+        "implementation": {
+          "centerCalculation": {
+            "x": "SCREEN_WIDTH / 2",
+            "y": "SCREEN_HEIGHT / 2"
+          },
+          "validation": {
+            "method": "Coordinate validation",
+            "adjustment": "Automatic boundary correction",
+            "safety": "Prevents invalid positions"
+          }
+        },
+        "sequence": [
+          "Screen fade out",
+          "Position reset",
+          "Coordinate validation",
+          "Initial pixel draw"
+        ]
+      }
+    },
+    "performance": {
+      "transitions": {
+        "fadeEffect": {
+          "memoryAccess": "Sequential writes",
+          "timing": "Configurable delays",
+          "colorHandling": "Grayscale progression",
+          "efficiency": "Optimized screen fills"
+        }
+      }
+    }
+  },
+  "debugging": {
+    "features": [
+      "Real-time coordinate display",
+      "Text mode overlay",
+      "Integrated number rendering",
+      "Protected mode string printing",
+      "Center position tracking"
+    ]
+  },
+  "textRendering": {
+    "positioning": {
+      "coordinates": {
+        "type": "32-bit",
+        "xRange": "0 to 640",
+        "yRange": "0 to 480",
+        "implementation": {
+          "registers": {
+            "x": "ESI (32-bit)",
+            "y": "EDI (32-bit)"
+          },
+          "boundaries": {
+            "horizontal": "SCREEN_WIDTH - 8",
+            "vertical": "SCREEN_HEIGHT - 9"
+          }
+        }
+      },
+      "wrapping": {
+        "method": "Automatic line wrap",
+        "triggers": {
+          "horizontal": "Screen width minus character width",
+          "vertical": "Screen height minus character height"
+        },
+        "margins": {
+          "left": 10,
+          "top": 10
+        }
+      }
+    },
+    "characters": {
+      "rendering": {
+        "positioning": {
+          "type": "32-bit addressing",
+          "calculation": "y * SCREEN_WIDTH + x",
+          "validation": "Full screen boundary checking"
+        },
+        "memory": {
+          "addressing": "Linear framebuffer",
+          "range": "Full VGA memory space"
+        }
+      }
+    },
+    "hexadecimal": {
+      "features": [
+        "32-bit position support",
+        "Two-digit hex display",
+        "High/low nibble separation",
+        "Direct memory lookup",
+        "Position preservation",
+        "Zero-extended indexing"
+      ],
+      "implementation": {
+        "lookup": {
+          "table": "hex_digits",
+          "format": "ASCII characters 0-9,A-F",
+          "access": "Direct memory indexing with 32-bit offset"
+        },
+        "rendering": {
+          "positioning": {
+            "type": "32-bit coordinates",
+            "xRegister": "ESI",
+            "yRegister": "EDI",
+            "preservation": "Stack-based position saving"
+          },
+          "spacing": {
+            "digitWidth": 6,
+            "method": "Fixed-width character spacing"
+          },
+          "conversion": {
+            "highNibble": "4-bit right shift",
+            "lowNibble": "4-bit mask",
+            "indexing": "Zero-extended 32-bit"
+          }
+        },
+        "parameters": {
+          "input": {
+            "value": "AL (8-bit value)",
+            "position": {
+              "x": "ESI (32-bit)",
+              "y": "EDI (32-bit)"
+            }
+          },
+          "output": "Two ASCII characters"
+        }
+      },
+      "memoryModel": {
+        "addressing": "Linear framebuffer",
+        "range": "Full VGA memory space",
+        "boundaries": {
+          "horizontal": "0 to SCREEN_WIDTH - 12",
+          "vertical": "0 to SCREEN_HEIGHT - 7"
+        }
+      }
+    },
+    "sectorDisplay": {
+      "features": [
+        "32-bit addressing",
+        "Sector-based hex display",
+        "Offset-based addressing",
+        "Multi-line display",
+        "Configurable byte count"
+      ],
+      "implementation": {
+        "display16BytesHex": {
+          "purpose": "Display single line of 16 bytes from sector data",
+          "input": {
+            "lineAddress": "32-bit offset value in EAX",
+            "yPosition": "32-bit Y coordinate in EDI",
+            "sectorData": "ESI - pointer to sector data"
+          },
+          "format": {
+            "addressDisplay": {
+              "highByte": {
+                "position": "x:20",
+                "calculation": "offset >> 8 & 0xFF"
+              },
+              "lowByte": {
+                "position": "x:32",
+                "calculation": "offset & 0xFF"
+              },
+              "separator": {
+                "character": ":",
+                "position": "x:44"
+              }
+            },
+            "dataDisplay": {
+              "startPosition": "x:56",
+              "spacing": 20,
+              "bytesPerLine": 16,
+              "dataAccess": "sector_pointer + offset"
+            }
+          }
+        },
+        "displaySectorHex": {
+          "purpose": "Display multiple lines from sector data",
+          "input": {
+            "sectorData": "ESI - pointer to sector data",
+            "byteCount": "ECX - total bytes to display"
+          },
+          "implementation": {
+            "lineHandling": {
+              "counter": "EDX register",
+              "yPosition": "line_number * LINE_HEIGHT + 20",
+              "offset": "line_number * BYTES_PER_LINE"
+            }
+          }
+        }
+      }
+    }
+  },
+  "storage": {
+    "type": "IDE Hard Drive",
+    "bootable": true,
+    "diskImage": {
+      "size": "320MB",
+      "format": "raw",
+      "layout": {
+        "bootloader": {
+          "sector": 0,
+          "size": "512 bytes"
+        },
+        "kernel": {
+          "startSector": 1,
+          "size": "Multiple sectors",
+          "sectorCount": 19
+        },
+        "filesystem": {
+          "type": "FAT32",
+          "startSector": 2048,
+          "size": "~319MB",
+          "label": "MYOS",
+          "features": [
+            "Standard FAT32 filesystem",
+            "Accessible from host system",
+            "File storage support",
+            "Directory structure"
+          ]
+        }
+      },
+      "creation": {
+        "method": "dd command",
+        "steps": [
+          "Create empty image file",
+          "Write bootloader to sector 0",
+          "Write kernel starting at sector 1",
+          "Initialize FAT32 filesystem from sector 2048"
+        ],
+        "parameters": {
+          "totalSectors": 69000,
+          "sectorSize": 512,
+          "reservedSectors": 2048
+        }
+      }
+    },
+    "interface": {
+      "primary": {
+        "ports": {
+          "data": "0x1F0",
+          "control": "0x1F7",
+          "status": "0x1F7"
+        },
+        "modes": [
+          "LBA28",
+          "PIO Mode"
+        ]
+      }
+    },
+    "operations": {
+      "read": {
+        "method": "PIO sector read",
+        "bufferSize": 512,
+        "retries": 3,
+        "statusChecks": [
+          "BSY bit verification",
+          "DRQ bit verification",
+          "ERR bit checking",
+          "Post-read verification"
+        ],
+        "errorHandling": {
+          "method": "Multi-stage verification",
+          "stages": [
+            "Pre-read status check",
+            "DRQ readiness verification",
+            "Post-read error detection",
+            "Automatic retry on failure"
+          ],
+          "retryBehavior": {
+            "maxAttempts": 3,
+            "conditions": [
+              "Drive busy timeout",
+              "Data request timeout",
+              "Error bit set",
+              "Read verification failure"
+            ]
+          }
+        },
+        "bufferHandling": {
+          "type": "Direct memory buffer",
+          "transfer": {
+            "method": "Optimized PIO transfer",
+            "mode": "Word-by-word using rep insw",
+            "verification": {
+              "pre": "DRQ readiness check",
+              "post": "Error bit verification",
+              "timing": "Status register polling"
+            }
+          },
+          "timing": {
+            "drqPolling": "Active waiting with timeout",
+            "readVerification": "Post-transfer status check",
+            "errorDetection": "Immediate error bit checking"
+          }
+        }
+      },
+      "write": {
+        "method": "PIO sector write",
+        "bufferSize": 512,
+        "retries": 3,
+        "verification": "Status register checking",
+        "statusChecks": [
+          "BSY bit verification",
+          "DRQ bit verification",
+          "ERR bit checking",
+          "Post-write verification"
+        ],
+        "errorHandling": {
+          "method": "Multi-stage verification",
+          "stages": [
+            "Pre-write status check",
+            "DRQ readiness verification",
+            "Post-write error detection",
+            "Automatic retry on failure"
+          ],
+          "retryBehavior": {
+            "maxAttempts": 3,
+            "conditions": [
+              "Drive busy timeout",
+              "Data request timeout",
+              "Error bit set",
+              "Write verification failure"
+            ]
+          }
+        },
+        "bufferHandling": {
+          "type": "Prepared sector buffer",
+          "preparation": {
+            "method": "Word-by-word buffer preparation",
+            "timing": {
+              "drqPolling": "Active waiting with timeout",
+              "writeVerification": "Post-transfer status check",
+              "errorDetection": "Immediate error bit checking"
+            },
+            "dataTransfer": {
+              "method": "Optimized PIO transfer",
+              "verification": {
+                "pre": "DRQ readiness check",
+                "post": "Error bit verification",
+                "timing": "Status register polling"
+              }
+            }
+          }
+        }
+      },
+      "display": {
+        "sectorHexViewer": {
+          "purpose": "Read and display disk sectors in hexadecimal format",
+          "implementation": {
+            "function": "read_and_display_sector",
+            "input": {
+              "sectorNumber": "EAX - sector number to read (0-based)",
+              "bufferSize": "512 bytes (full sector)"
+            },
+            "process": [
+              "Read specified sector into buffer",
+              "Verify read operation success",
+              "Display sector contents in hex format",
+              "Handle any read errors"
+            ],
+            "display": {
+              "format": "16 bytes per line with offset",
+              "position": {
+                "start": {
+                  "x": "Calculated based on screen width",
+                  "y": "10 pixels from top"
+                },
+                "spacing": {
+                  "vertical": "10 pixels between lines",
+                  "horizontal": "20 pixels between hex values"
+                }
+              }
+            },
+            "errorHandling": {
+              "detection": "Carry flag for error indication",
+              "display": "Centered error message",
+              "recovery": "Return to caller with error status"
+            }
+          },
+          "features": [
+            "Single-call sector reading and display",
+            "Integrated error handling",
+            "Formatted hex output",
+            "Clear visual presentation",
+            "Support for any valid sector number",
+            "Automatic buffer management"
+          ]
+        }
+      }
+    },
+    "features": [
+      "Raw disk image support",
+      "FAT32 filesystem integration",
+      "Sector-level access",
+      "Error detection",
+      "Automatic retries",
+      "Status monitoring",
+      "Timeout protection",
+      "Multiple drive support",
+      "Host system accessibility",
+      "Proper sector buffer handling",
+      "Data integrity preservation",
+      "Word-aligned data transfers",
+      "PIO mode optimization",
+      "Enhanced error detection",
+      "Multi-stage write verification",
+      "Optimized status checking",
+      "Robust retry mechanism"
+    ]
+  }
+} 
